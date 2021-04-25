@@ -22,6 +22,24 @@ var uiController = (function () {
     getDomStrings: function () {
       return domStrings;
     },
+
+    addListItem: function (item, type) {
+      var typeList;
+      var html;
+      if (type === "inc") {
+        typeList = ".income__list";
+        html =
+          '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } else {
+        typeList = ".expenses__list";
+        html =
+          '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      }
+      html = html.replace("%id%", item.id);
+      html = html.replace("%description%", item.description);
+      html = html.replace("%value%", item.value);
+      document.querySelector(typeList).insertAdjacentHTML("beforeend", html);
+    },
   };
 })();
 
@@ -72,7 +90,8 @@ var financeController = (function () {
         item = new Expense(id, description, value);
       }
       data.items[type].push(item);
-      console.log(data.items);
+
+      return item;
     },
   };
 })();
@@ -83,7 +102,9 @@ var appController = (function (uiCtrl, fnCtrl) {
   var ctrlAddItem = function () {
     var i = uiCtrl.getInput();
     // Oruulah ugugdliig olj avna
-    fnCtrl.addItems(i.type, i.description, i.value);
+    var item = fnCtrl.addItems(i.type, i.description, i.value);
+
+    uiCtrl.addListItem(item, i.type);
 
     // Olj avsan ugugdluudee sanhuugiin controllruu shiljuulj hadgaldag bolgono
     // olj avsan medeeliig tohiroh orlogo zarlaga deer haruulna
