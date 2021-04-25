@@ -28,7 +28,7 @@ var uiController = (function () {
 // Санхүүтэй ажиллах удирдлага
 
 var financeController = (function () {
-  //
+  // orj irsen medeelliig ashiglaad shine object uusgedg funkts
   var Income = function (id, description, value) {
     this.id = id;
     this.description = description;
@@ -40,9 +40,9 @@ var financeController = (function () {
     this.description = description;
     this.value = value;
   };
-
+  // orj irsen objectiig hadgalah massive datatype huvisagch
   var data = {
-    allitems: {
+    items: {
       inc: [],
       exp: [],
     },
@@ -52,14 +52,39 @@ var financeController = (function () {
       exp: 0,
     },
   };
+  // return dotor single object uusgev
+  return {
+    // add items public function uusgev, herev gadnaas handaad medeellel avhiig husvel return bichij bolno
+    addItems: function (type, description, value) {
+      // item huvisagch dotor shineer uusgesn objectiig hadgalna
+      var item, id;
+
+      if (data.items[type].length == 0) {
+        id = 1;
+      } else {
+        id = data.items[type][data.items[type].length - 1].id + 1;
+      }
+
+      //type hamaarch argumenteer orj irsen medeellig ashiglaad income esvel expense object uusgev
+      if (type === "inc") {
+        item = new Income(id, description, value);
+      } else {
+        item = new Expense(id, description, value);
+      }
+      data.items[type].push(item);
+      console.log(data.items);
+    },
+  };
 })();
 
 // Програмын холбогч компютер
 var appController = (function (uiCtrl, fnCtrl) {
   // add darhad ajillah function
   var ctrlAddItem = function () {
-    console.log(uiCtrl.getInput());
+    var i = uiCtrl.getInput();
     // Oruulah ugugdliig olj avna
+    fnCtrl.addItems(i.type, i.description, i.value);
+
     // Olj avsan ugugdluudee sanhuugiin controllruu shiljuulj hadgaldag bolgono
     // olj avsan medeeliig tohiroh orlogo zarlaga deer haruulna
     // tusviig tootsolno
