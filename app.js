@@ -1,7 +1,7 @@
-// Дэлгэцтэй ажиллах удирдлага
+// Дэлгэцийн IIFE функц
 
 var uiController = (function () {
-  // buh index-ees avch bui html class tag-nuud end tsuglarna
+  // index-тэй холбогдсон html class & tag-ууд болно
   var domStrings = {
     inputType: ".add__type",
     inputDescription: ".add__description",
@@ -10,7 +10,7 @@ var uiController = (function () {
     incomeList: ".income__list",
     expenseList: ".expenses__list",
   };
-  // return hiisneer busad function dotor doorh koduudiig public maygaar ashiglaj bolno
+  // uiController доторх public мэдээлэл
   return {
     // index-ees class-aar handaj form medeeliig tsugluulna
     getInput: function () {
@@ -31,8 +31,6 @@ var uiController = (function () {
       );
 
       var fieldsArr = Array.prototype.slice.call(fields);
-
-      console.log(fieldsArr);
 
       fieldsArr.forEach(function (el) {
         el.value = "";
@@ -61,9 +59,25 @@ var uiController = (function () {
   };
 })();
 
-// Санхүүтэй ажиллах удирдлага
+// Санхүүгийн IIFE функц
 
 var financeController = (function () {
+  // orj irsen objectiig hadgalah massive datatype huvisagch
+  var data = {
+    items: {
+      inc: [],
+      exp: [],
+    },
+
+    totals: {
+      inc: 0,
+      exp: 0,
+    },
+
+    tusuv: 0,
+    huvi: 0,
+  };
+
   // orj irsen medeelliig ashiglaad shine object uusgedg funkts
   var Income = function (id, description, value) {
     this.id = id;
@@ -76,20 +90,37 @@ var financeController = (function () {
     this.description = description;
     this.value = value;
   };
-  // orj irsen objectiig hadgalah massive datatype huvisagch
-  var data = {
-    items: {
-      inc: [],
-      exp: [],
+
+  var calculateTotal = function (type) {
+    //
+    var sum = 0;
+    data.items[type].forEach(function (el) {
+      sum = sum + el.value;
+    });
+
+    data.totals[type] = sum;
+  };
+
+  // // financeController доторх public мэдээлэл
+  return {
+    tusuvTootsoloh: function () {
+      calculateTotal("inc");
+      calculateTotal("exp");
+
+      data.tusuv = data.totals.inc - data.totals.exp;
+      //
+      data.huvi = Math.round((data.totals.exp / data.totals.inc) * 100);
     },
 
-    totals: {
-      inc: 0,
-      exp: 0,
+    tusuvAvah: function () {
+      return {
+        tusuv: data.tusuv,
+        huvi: data.huvi,
+        totalExp: data.totals.exp,
+        totalInc: data.totals.inc,
+      };
     },
-  };
-  // return dotor single object uusgev
-  return {
+
     seeData: function () {
       return data;
     },
@@ -117,7 +148,8 @@ var financeController = (function () {
   };
 })();
 
-// Програмын холбогч компютер
+// Холбогч IFEE функц
+
 var appController = (function (uiCtrl, fnCtrl) {
   // add darhad ajillah function
   var ctrlAddItem = function () {
@@ -129,31 +161,38 @@ var appController = (function (uiCtrl, fnCtrl) {
 
       uiCtrl.addListItem(item, i.type);
       uiCtrl.clearFields();
+
+      fnCtrl.tusuvTootsoloh();
+      var tusuv = fnCtrl.tusuvAvah();
+
+      console.log(fnCtrl.seeData());
     }
   };
 
+  // Бүх эвэнт листенер байгаа газар
   var setupEventListeners = function () {
-    // uiController dotor bga dom medeelliig damjuulah zorilgotoi
+    // uiController доторх дом мэдээллийг хүлээж авна
     var DOM = uiCtrl.getDomStrings();
-    // keyboard bolon icon event listeneeruud
+    // keyboard & icon event зарлалаа
     document.querySelector(DOM.addBtn).addEventListener("click", function () {
       ctrlAddItem();
     });
-    // Keyboard unshih zorilgotoi
+    // Keyboard event зарлалаа
     document.addEventListener("keyup", (event) => {
       if (event.key === "Enter" || event.which === 13) {
         ctrlAddItem();
       }
     });
   };
-  // public function huvisagch nar end hadgalnaa
+  // програм эхлэлэд ажиллах public function
   return {
     init: function () {
       console.log("app ehellee");
       setupEventListeners();
     },
   };
-  // ui bolon finance functionii medeelliig access hiihed zoriulagdsan
+  // ui & finance function доторх public мэдээлэлтэй харьцах боломжийг олгоно
 })(uiController, financeController);
 
+// програм эхлүүлдэг функцыг дуудав.
 appController.init();
