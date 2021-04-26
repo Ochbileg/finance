@@ -1,0 +1,33 @@
+var uiController (function(){
+	var domStrings = {};
+	
+	return {
+		getInput: function (){},
+		getDomStrings: function (){},
+		clearFields: function (){},
+		addListItem: function (){},
+	};
+})();
+
+var financeController = (function (){
+	var data = {};
+	var Income = function () {};
+	var Expense = function () {};
+	
+	return {
+		seeData: function (){},
+		addItems: function (){},
+		seeData: function (){},
+	};
+})();
+
+var appController = (function(){
+	var ctrlAddItem = function (){};
+	var setupEventsListener = function (){};
+	
+	return {
+		init: function () {},
+	};
+})(uiController, financeController);
+
+appController.init();
