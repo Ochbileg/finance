@@ -7,6 +7,8 @@ var uiController = (function () {
     inputDescription: ".add__description",
     inputValue: ".add__value",
     addBtn: ".add__btn",
+    incomeList: ".income__list",
+    expenseList: ".expenses__list",
   };
   // return hiisneer busad function dotor doorh koduudiig public maygaar ashiglaj bolno
   return {
@@ -15,7 +17,7 @@ var uiController = (function () {
       return {
         type: document.querySelector(domStrings.inputType).value,
         description: document.querySelector(domStrings.inputDescription).value,
-        value: document.querySelector(domStrings.inputValue).value,
+        value: parseInt(document.querySelector(domStrings.inputValue).value),
       };
     },
     // deerh objectiig public baidlaar damjuulah zorilgotoi
@@ -23,15 +25,31 @@ var uiController = (function () {
       return domStrings;
     },
 
+    clearFields: function () {
+      var fields = document.querySelectorAll(
+        domStrings.inputDescription + ", " + domStrings.inputValue
+      );
+
+      var fieldsArr = Array.prototype.slice.call(fields);
+
+      console.log(fieldsArr);
+
+      fieldsArr.forEach(function (el) {
+        el.value = "";
+      });
+
+      fieldsArr[0].focus();
+    },
+
     addListItem: function (item, type) {
       var typeList;
       var html;
       if (type === "inc") {
-        typeList = ".income__list";
+        typeList = domStrings.incomeList;
         html =
           '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } else {
-        typeList = ".expenses__list";
+        typeList = domStrings.expenseList;
         html =
           '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
@@ -72,6 +90,9 @@ var financeController = (function () {
   };
   // return dotor single object uusgev
   return {
+    seeData: function () {
+      return data;
+    },
     // add items public function uusgev, herev gadnaas handaad medeellel avhiig husvel return bichij bolno
     addItems: function (type, description, value) {
       // item huvisagch dotor shineer uusgesn objectiig hadgalna
@@ -101,15 +122,14 @@ var appController = (function (uiCtrl, fnCtrl) {
   // add darhad ajillah function
   var ctrlAddItem = function () {
     var i = uiCtrl.getInput();
-    // Oruulah ugugdliig olj avna
-    var item = fnCtrl.addItems(i.type, i.description, i.value);
 
-    uiCtrl.addListItem(item, i.type);
+    if (i.value && i.description !== "") {
+      // Oruulah ugugdliig olj avna
+      var item = fnCtrl.addItems(i.type, i.description, i.value);
 
-    // Olj avsan ugugdluudee sanhuugiin controllruu shiljuulj hadgaldag bolgono
-    // olj avsan medeeliig tohiroh orlogo zarlaga deer haruulna
-    // tusviig tootsolno
-    // etsiin uldegdel tootsoog haruulna
+      uiCtrl.addListItem(item, i.type);
+      uiCtrl.clearFields();
+    }
   };
 
   var setupEventListeners = function () {
