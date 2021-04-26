@@ -9,9 +9,29 @@ var uiController = (function () {
     addBtn: ".add__btn",
     incomeList: ".income__list",
     expenseList: ".expenses__list",
+    budgetValue: ".budget__value",
+    budgetIncValue: ".budget__income--value",
+    budgetExpValue: ".budget__expenses--value",
+    budgetExpPercentage: ".budget__expenses--percentage",
   };
   // uiController доторх public мэдээлэл
   return {
+    tusuvHaruulna: function (t) {
+      if (t.huvi === 0) {
+        document.querySelector(domStrings.budgetExpPercentage).textContent =
+          t.huvi;
+      } else {
+        document.querySelector(domStrings.budgetExpPercentage).textContent =
+          t.huvi + "%";
+      }
+
+      document.querySelector(domStrings.budgetValue).textContent = t.tusuv;
+
+      document.querySelector(domStrings.budgetExpValue).textContent =
+        t.totalExp;
+      document.querySelector(domStrings.budgetIncValue).textContent =
+        t.totalInc;
+    },
     // index-ees class-aar handaj form medeeliig tsugluulna
     getInput: function () {
       return {
@@ -165,7 +185,7 @@ var appController = (function (uiCtrl, fnCtrl) {
       fnCtrl.tusuvTootsoloh();
       var tusuv = fnCtrl.tusuvAvah();
 
-      console.log(fnCtrl.seeData());
+      uiCtrl.tusuvHaruulna(tusuv);
     }
   };
 
@@ -189,6 +209,13 @@ var appController = (function (uiCtrl, fnCtrl) {
     init: function () {
       console.log("app ehellee");
       setupEventListeners();
+
+      uiCtrl.tusuvHaruulna({
+        tusuv: 0,
+        huvi: 0,
+        totalExp: 0,
+        totalInc: 0,
+      });
     },
   };
   // ui & finance function доторх public мэдээлэлтэй харьцах боломжийг олгоно

@@ -1,32 +1,31 @@
-var uiController (function(){
+var uiController (function(){ - 1
 	var domStrings = {};
 	
 	return {
-		getInput: function (){},
-		getDomStrings: function (){},
+		getInput: function (){}, - 5
+		getDomStrings: function (){}, -7
 		clearFields: function (){},
-		addListItem: function (){},
+		addListItem: function (){}, - 12
 	};
 })();
 
-var financeController = (function (){
+var financeController = (function (){ - 2
 	var data = {};
-	var Income = function () {};
-	var Expense = function () {};
+	var Income = function () {}; - 10
+	var Expense = function () {}; - 10
 	
 	return {
-		seeData: function (){},
-		addItems: function (){},
-		seeData: function (){},
+		seeData: function (){}, -9
+		addItems: function (){}, -8
 	};
 })();
 
-var appController = (function(){
-	var ctrlAddItem = function (){};
-	var setupEventsListener = function (){};
+var appController = (function(){ - 3
+	var ctrlAddItem = function (){}; -6
+	var setupEventsListener = function (){}; - 4
 	
 	return {
-		init: function () {},
+		init: function () {}, -11
 	};
 })(uiController, financeController);
 
