@@ -13,6 +13,7 @@ var uiController = (function () {
     budgetIncValue: ".budget__income--value",
     budgetExpValue: ".budget__expenses--value",
     budgetExpPercentage: ".budget__expenses--percentage",
+    containerDiv: ".container",
   };
   // uiController доторх public мэдээлэл
   return {
@@ -58,18 +59,21 @@ var uiController = (function () {
 
       fieldsArr[0].focus();
     },
-
+    deleteListItem: function (id) {
+      var a = document.getElementById(id);
+      a.parentNode.removeChild(a);
+    },
     addListItem: function (item, type) {
       var typeList;
       var html;
       if (type === "inc") {
         typeList = domStrings.incomeList;
         html =
-          '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } else {
         typeList = domStrings.expenseList;
         html =
-          '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
       html = html.replace("%id%", item.id);
       html = html.replace("%description%", item.description);
@@ -123,6 +127,17 @@ var financeController = (function () {
 
   // // financeController доторх public мэдээлэл
   return {
+    deleteItem: function (type, inputId) {
+      // console.log("deleteItem: " + type + "-" + inputId);
+      for (var i = 0; i < data.items[type].length; i++) {
+        if (parseInt(inputId) === data.items[type][i].id) {
+          // console.log(inputId + " tentsuu " + data.items[type][i].id);
+          data.items[type].splice(i, 1);
+          break;
+        }
+      }
+    },
+
     tusuvTootsoloh: function () {
       calculateTotal("inc");
       calculateTotal("exp");
@@ -203,6 +218,20 @@ var appController = (function (uiCtrl, fnCtrl) {
         ctrlAddItem();
       }
     });
+
+    document
+      .querySelector(DOM.containerDiv)
+      .addEventListener("click", function (event) {
+        var id = event.target.parentNode.parentNode.parentNode.parentNode.id;
+        if (id) {
+          var arr = id.split("-");
+          var type = arr[0];
+          var itemId = arr[1];
+          console.log("tovch daragdlaa->" + arr[0] + "-" + arr[1]);
+          fnCtrl.deleteItem(type, itemId);
+          uiCtrl.deleteListItem(id);
+        }
+      });
   };
   // програм эхлэлэд ажиллах public function
   return {
