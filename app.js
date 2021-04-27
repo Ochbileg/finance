@@ -18,9 +18,9 @@ var uiController = (function () {
   // uiController доторх public мэдээлэл
   return {
     tusuvHaruulna: function (t) {
-      if (t.huvi === 0) {
-        document.querySelector(domStrings.budgetExpPercentage).textContent =
-          t.huvi;
+      console.log(t.huvi);
+      if (t.huvi === 0 || isNaN(t.huvi) || t.huvi == Infinity) {
+        document.querySelector(domStrings.budgetExpPercentage).textContent = 0;
       } else {
         document.querySelector(domStrings.budgetExpPercentage).textContent =
           t.huvi + "%";
@@ -197,13 +197,15 @@ var appController = (function (uiCtrl, fnCtrl) {
       uiCtrl.addListItem(item, i.type);
       uiCtrl.clearFields();
 
-      fnCtrl.tusuvTootsoloh();
-      var tusuv = fnCtrl.tusuvAvah();
-
-      uiCtrl.tusuvHaruulna(tusuv);
+      updateBudget();
     }
   };
 
+  var updateBudget = function () {
+    fnCtrl.tusuvTootsoloh();
+    var tusuv = fnCtrl.tusuvAvah();
+    uiCtrl.tusuvHaruulna(tusuv);
+  };
   // Бүх эвэнт листенер байгаа газар
   var setupEventListeners = function () {
     // uiController доторх дом мэдээллийг хүлээж авна
@@ -230,6 +232,8 @@ var appController = (function (uiCtrl, fnCtrl) {
           console.log("tovch daragdlaa->" + arr[0] + "-" + arr[1]);
           fnCtrl.deleteItem(type, itemId);
           uiCtrl.deleteListItem(id);
+
+          updateBudget();
         }
       });
   };

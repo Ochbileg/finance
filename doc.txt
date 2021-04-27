@@ -4,7 +4,7 @@ var uiController (function(){ - 1
 	return {
 		getInput: function (){}, - 5
 		getDomStrings: function (){}, -7
-		clearFields: function (){},
+		clearFields: function (){}, - 13
 		addListItem: function (){}, - 12
 	};
 })();
@@ -29,4 +29,4 @@ var appController = (function(){ - 3
 	};
 })(uiController, financeController);
 
-appController.init();
+appController.init(); -11
