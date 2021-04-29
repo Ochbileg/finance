@@ -50,6 +50,21 @@ var uiController = (function () {
   };
   // uiController PUBLIC functions
   return {
+    changeType: function () {
+      var fields = document.querySelectorAll(
+        domStrings.inputType +
+          ", " +
+          domStrings.inputDescription +
+          ", " +
+          domStrings.inputValue
+      );
+      nodeListForEach(fields, function (el) {
+        el.classList.toggle("red-focus");
+      });
+
+      document.querySelector(domStrings.addBtn).classList.toggle("red");
+      // window.location = "https://1234.mn" bdag shuu
+    },
     displayDate: function () {
       var unuudur = new Date();
       document.querySelector(domStrings.dateLabel).textContent =
@@ -301,6 +316,9 @@ var appController = (function (uiCtrl, fnCtrl) {
       }
     });
 
+    document
+      .querySelector(DOM.inputType)
+      .addEventListener("change", uiCtrl.changeType);
     document
       .querySelector(DOM.containerDiv)
       .addEventListener("click", function (event) {
