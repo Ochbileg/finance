@@ -1,7 +1,6 @@
-// Дэлгэцийн IIFE функц
+// uiController start
 
 var uiController = (function () {
-  // index-тэй холбогдсон html class & tag-ууд болно
   var domStrings = {
     inputType: ".add__type",
     inputDescription: ".add__description",
@@ -14,26 +13,83 @@ var uiController = (function () {
     budgetExpValue: ".budget__expenses--value",
     budgetExpPercentage: ".budget__expenses--percentage",
     containerDiv: ".container",
+    expensePercentageLabel: ".item__percentage",
+    dateLabel: ".budget__title--month",
   };
-  // uiController доторх public мэдээлэл
+  // uiController PRIVATE functions
+  var nodeListForEach = function (list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  };
+
+  var formatMoney = function (too, type) {
+    var num = "" + too;
+    var count = 0;
+    var y = "";
+
+    num = num.split("").reverse().join("");
+    for (var i = 0; i < num.length; i++) {
+      count++;
+      y = y + num[i];
+      if (count % 3 === 0) {
+        y = y + ",";
+      }
+    }
+    num = y.split("").reverse().join("");
+    if (num[0] === ",") {
+      num = num.substring(1);
+    }
+    if (type === "inc") {
+      num = "+ " + num;
+    } else if (type === "exp") {
+      num = "- " + num;
+    }
+
+    return num;
+  };
+  // uiController PUBLIC functions
   return {
+    displayDate: function () {
+      var unuudur = new Date();
+      document.querySelector(domStrings.dateLabel).textContent =
+        unuudur.getFullYear() + " оны " + unuudur.getMonth() + " сар";
+    },
+    displayPercentages: function (allPercentages) {
+      var elements = document.querySelectorAll(
+        domStrings.expensePercentageLabel
+      );
+
+      nodeListForEach(elements, function (el, index) {
+        el.textContent = allPercentages[index];
+      });
+    },
     tusuvHaruulna: function (t) {
-      console.log(t.huvi);
+      // console.log(t.huvi);
       if (t.huvi === 0 || isNaN(t.huvi) || t.huvi == Infinity) {
         document.querySelector(domStrings.budgetExpPercentage).textContent = 0;
       } else {
         document.querySelector(domStrings.budgetExpPercentage).textContent =
           t.huvi + "%";
       }
+      var type;
+      if (t.tusuv > 0) {
+        type = "inc";
+      } else {
+        type = "exp";
+      }
+      document.querySelector(domStrings.budgetValue).textContent = formatMoney(
+        t.tusuv,
+        type
+      );
 
-      document.querySelector(domStrings.budgetValue).textContent = t.tusuv;
-
-      document.querySelector(domStrings.budgetExpValue).textContent =
-        t.totalExp;
-      document.querySelector(domStrings.budgetIncValue).textContent =
-        t.totalInc;
+      document.querySelector(
+        domStrings.budgetExpValue
+      ).textContent = formatMoney(t.totalExp, "exp");
+      document.querySelector(
+        domStrings.budgetIncValue
+      ).textContent = formatMoney(t.totalInc, "inc");
     },
-    // index-ees class-aar handaj form medeeliig tsugluulna
     getInput: function () {
       return {
         type: document.querySelector(domStrings.inputType).value,
@@ -41,11 +97,9 @@ var uiController = (function () {
         value: parseInt(document.querySelector(domStrings.inputValue).value),
       };
     },
-    // deerh objectiig public baidlaar damjuulah zorilgotoi
     getDomStrings: function () {
       return domStrings;
     },
-
     clearFields: function () {
       var fields = document.querySelectorAll(
         domStrings.inputDescription + ", " + domStrings.inputValue
@@ -77,16 +131,14 @@ var uiController = (function () {
       }
       html = html.replace("%id%", item.id);
       html = html.replace("%description%", item.description);
-      html = html.replace("%value%", item.value);
+      html = html.replace("%value%", formatMoney(item.value, type));
       document.querySelector(typeList).insertAdjacentHTML("beforeend", html);
     },
   };
 })();
-
-// Санхүүгийн IIFE функц
+// financeController START
 
 var financeController = (function () {
-  // orj irsen objectiig hadgalah massive datatype huvisagch
   var data = {
     items: {
       inc: [],
@@ -101,20 +153,19 @@ var financeController = (function () {
     tusuv: 0,
     huvi: 0,
   };
-
-  // orj irsen medeelliig ashiglaad shine object uusgedg funkts
+  // PRIVATE functions
   var Income = function (id, description, value) {
+    // орж ирсэн мэдээллийг Object болгоно
     this.id = id;
     this.description = description;
     this.value = value;
   };
-
   var Expense = function (id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
+    this.percentage = -1;
   };
-
   var calculateTotal = function (type) {
     //
     var sum = 0;
@@ -124,9 +175,36 @@ var financeController = (function () {
 
     data.totals[type] = sum;
   };
+  Expense.prototype.calcPercentage = function (totalIncome) {
+    // Нийт орлого тоог аваад тухайн Object-ийн хэдэн хувь эзлэхийг тооцолно
+    if (totalIncome > 0) {
+      this.percentage = Math.round((this.value / totalIncome) * 100);
+    } else {
+      this.percentage = 0;
+    }
+  };
+  Expense.prototype.getPercentage = function () {
+    // Тухайн Object-ийн хувь-ийг буцаана
+    return this.percentage;
+  };
 
-  // // financeController доторх public мэдээлэл
+  // PUBLIC functions
   return {
+    calculateAllPercentages: function () {
+      // Object бүрийн хувийг тооцолно
+      data.items.exp.forEach(function (el) {
+        // console.log(el);
+        el.calcPercentage(data.totals.inc);
+      });
+    },
+    getAllPercentages: function () {
+      // Object бүрийн хувийг буцаана
+      var percentages = data.items.exp.map(function (el) {
+        return el.getPercentage();
+      });
+
+      return percentages;
+    },
     deleteItem: function (type, inputId) {
       // console.log("deleteItem: " + type + "-" + inputId);
       for (var i = 0; i < data.items[type].length; i++) {
@@ -137,16 +215,17 @@ var financeController = (function () {
         }
       }
     },
-
     tusuvTootsoloh: function () {
       calculateTotal("inc");
       calculateTotal("exp");
 
       data.tusuv = data.totals.inc - data.totals.exp;
-      //
-      data.huvi = Math.round((data.totals.exp / data.totals.inc) * 100);
+      if (data.totals.inc > 0) {
+        data.huvi = Math.round((data.totals.exp / data.totals.inc) * 100);
+      } else {
+        data.huvi = 0;
+      }
     },
-
     tusuvAvah: function () {
       return {
         tusuv: data.tusuv,
@@ -155,12 +234,11 @@ var financeController = (function () {
         totalInc: data.totals.inc,
       };
     },
-
     seeData: function () {
       return data;
     },
-    // add items public function uusgev, herev gadnaas handaad medeellel avhiig husvel return bichij bolno
     addItems: function (type, description, value) {
+      // add items public function uusgev, herev gadnaas handaad medeellel avhiig husvel return bichij bolno
       // item huvisagch dotor shineer uusgesn objectiig hadgalna
       var item, id;
 
@@ -182,12 +260,12 @@ var financeController = (function () {
     },
   };
 })();
-
-// Холбогч IFEE функц
+// appController START
 
 var appController = (function (uiCtrl, fnCtrl) {
-  // add darhad ajillah function
+  // PRIVATE functions
   var ctrlAddItem = function () {
+    // add darhad ajillah function
     var i = uiCtrl.getInput();
 
     if (i.value && i.description !== "") {
@@ -200,14 +278,16 @@ var appController = (function (uiCtrl, fnCtrl) {
       updateBudget();
     }
   };
-
   var updateBudget = function () {
     fnCtrl.tusuvTootsoloh();
     var tusuv = fnCtrl.tusuvAvah();
     uiCtrl.tusuvHaruulna(tusuv);
+    fnCtrl.calculateAllPercentages();
+    var allPercentages = fnCtrl.getAllPercentages();
+    uiCtrl.displayPercentages(allPercentages);
   };
-  // Бүх эвэнт листенер байгаа газар
   var setupEventListeners = function () {
+    // Бүх эвэнт листенер байгаа газар
     // uiController доторх дом мэдээллийг хүлээж авна
     var DOM = uiCtrl.getDomStrings();
     // keyboard & icon event зарлалаа
@@ -229,20 +309,18 @@ var appController = (function (uiCtrl, fnCtrl) {
           var arr = id.split("-");
           var type = arr[0];
           var itemId = arr[1];
-          console.log("tovch daragdlaa->" + arr[0] + "-" + arr[1]);
           fnCtrl.deleteItem(type, itemId);
           uiCtrl.deleteListItem(id);
-
           updateBudget();
         }
       });
   };
-  // програм эхлэлэд ажиллах public function
+  // PUBLIC functions
   return {
     init: function () {
       console.log("app ehellee");
       setupEventListeners();
-
+      uiCtrl.displayDate();
       uiCtrl.tusuvHaruulna({
         tusuv: 0,
         huvi: 0,
